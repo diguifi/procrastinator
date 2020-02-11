@@ -1,15 +1,43 @@
 ﻿@page "/"
-
+@using System.Threading
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
 <h1>The Procrastinator</h1>
 
 <h2>Procrastinations: @currentCount</h2>
+<h3>@testCount</h3>
 
 <button class="btn btn-primary" @onclick="IncrementCount">Manual rusty machine</button>
 
 @code {
     private int currentCount = 0;
+    private int testCount { get; set; } = 10;
+    private static Timer _timer;
+    private const long TimerInterval = 200;
+
+    protected override void OnInitialized()
+    {
+        _timer = new Timer(Callback, null, 0, TimerInterval);
+    }
+ 
+    private void Callback(object state)
+    {
+        CalculateAndApplyProcrastinations();
+    }
+
+    private void CalculateAndApplyProcrastinations()
+    {
+        if (testCount > 0)
+        {
+            testCount--;
+        }
+        else
+        {
+            testCount = 10;
+        }
+
+        this.StateHasChanged();
+    }
 
     private void IncrementCount()
     {
