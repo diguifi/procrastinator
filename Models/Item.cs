@@ -4,22 +4,22 @@ namespace procrastinator.Models
 {
     public class Item
     {
-        int Id;
-        string Name;
-        int Price;
-        int Power;
-        int Total;
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int Price { get; set; }
+        public int Power { get; set; }
+        public int Total { get; set; }
 
-        public Item(int id, string name, int price, int power, int total)
+        public Item(int id, string name, int price, int power)
         {
             Id = id;
             Name = name;
             Price = price;
             Power = power;
-            Total = total;
+            Total = 0;
         }
         
-        public int Buy(int totalProcrastination) 
+        public decimal Buy(decimal totalProcrastination) 
         {
             if (totalProcrastination >= Price) 
             {

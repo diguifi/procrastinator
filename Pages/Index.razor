@@ -1,23 +1,47 @@
 ﻿@page "/"
 @using System.Threading
+@using procrastinator.Models
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
 <h1>The Procrastinator</h1>
 
-<h2>Procrastinations: @currentCount</h2>
-<h3>@testCount</h3>
+<h2>Procrastinations: @totalProcrastination</h2>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Manual rusty machine</button>
+<button class="btn btn-primary" @onclick="ManualIncrement">Manual rusty machine (+1)</button>
+
+<h2 class="mt-4 mb-4">Store:</h2>
+@foreach (var item in items)
+{
+    <div>
+        <h3>@item.Name</h3>+@item.Power procrastination per second
+        <br/><b>Price:</b> @item.Price
+        <br/><b>Owns:</b> @item.Total
+        <br/>
+        @if(CanBuyItem(item.Price))
+        {
+            <button class="btn btn-success" @onclick="(() => BuyItem(item.Id))">Buy!</button>
+        }
+        else
+        {
+            <button disabled class="btn btn-secondary">Buy!</button>
+        }
+    </div><br/>
+}
 
 @code {
-    private int currentCount = 0;
-    private int testCount { get; set; } = 10;
+    private decimal totalProcrastination = 0;
+    private ICollection<Item> items { get; set; } = new List<Item>();
     private static Timer _timer;
-    private const long TimerInterval = 200;
+    private const long timerInterval = 200;
 
     protected override void OnInitialized()
     {
-        _timer = new Timer(Callback, null, 0, TimerInterval);
+        items.Add(new Item(1, "Rusty Machine", 50, 1));
+        items.Add(new Item(2, "Nice Machine", 500, 5));
+        items.Add(new Item(3, "Propane Machine", 2000, 15));
+        items.Add(new Item(4, "Nuclear Machine", 10000, 50));
+
+        _timer = new Timer(Callback, null, 0, timerInterval);
     }
  
     private void Callback(object state)
@@ -27,21 +51,32 @@
 
     private void CalculateAndApplyProcrastinations()
     {
-        if (testCount > 0)
+        var totalProcToAdd = 0;
+        foreach (var item in items)
         {
-            testCount--;
+            totalProcToAdd += item.Power * item.Total;
         }
-        else
-        {
-            testCount = 10;
-        }
+
+        float totalProcToAddOnStep = (totalProcToAdd/(1000.0f/timerInterval));
+
+        totalProcrastination += decimal.Round((decimal)totalProcToAddOnStep, 2, MidpointRounding.AwayFromZero);
 
         this.StateHasChanged();
     }
 
-    private void IncrementCount()
+    private void ManualIncrement()
     {
-        currentCount++;
-        LocalStorage.SetItemAsync("quantity", currentCount);
+        totalProcrastination++;
+        LocalStorage.SetItemAsync("quantity", totalProcrastination);
+    }
+
+    private bool CanBuyItem(int price)
+    {
+        return price <= totalProcrastination;
+    }
+
+    private void BuyItem(int id)
+    {
+        totalProcrastination = items.Where(i => i.Id == id).FirstOrDefault().Buy(totalProcrastination);
     }
 }
