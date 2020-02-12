@@ -1,0 +1,59 @@
+﻿@using procrastinator.Models
+
+<h2 class="mt-4 mb-4">Store:</h2>
+@foreach (var item in items)
+{
+    <div>
+        <h3>@item.Name</h3>+@item.Power procrastination per second
+        <br/><b>Price:</b> @item.Price
+        <br/><b>Owns:</b> @item.Total
+        <br/>
+        @if(CanBuyItem(item.Price))
+        {
+            <button class="btn btn-success" @onclick="(() => BuyItem(item.Id))">Buy!</button>
+        }
+        else
+        {
+            <button disabled class="btn btn-secondary">Buy!</button>
+        }
+    </div><br/>
+}
+
+@code {
+    [Parameter]
+    public decimal totalProcrastination { get; set; }
+
+    private ICollection<Item> items { get; set; } = new List<Item>();
+    
+    [Parameter]
+    public  EventCallback<decimal>  OnTotalProcrastinationChanged { get; set; }
+    [Parameter]
+    public  EventCallback<ICollection<Item>>  OnItemsChanged { get; set; }
+
+    protected override async void OnInitialized()
+    {
+        await InitItems();
+    }
+
+    private async Task InitItems()
+    {
+        items.Add(new Item(1, "Rusty Machine", 50, 1));
+        items.Add(new Item(2, "Nice Machine", 500, 5));
+        items.Add(new Item(3, "Propane Machine", 2000, 15));
+        items.Add(new Item(4, "Nuclear Machine", 10000, 50));
+
+        await OnItemsChanged.InvokeAsync(items);
+    }
+
+    private bool CanBuyItem(int price)
+    {
+        return price <= totalProcrastination;
+    }
+
+    private async void BuyItem(int id)
+    {
+        totalProcrastination = items.Where(i => i.Id == id).FirstOrDefault().Buy(totalProcrastination);
+        await OnTotalProcrastinationChanged.InvokeAsync(totalProcrastination);
+        await OnItemsChanged.InvokeAsync(items);
+    }
+}

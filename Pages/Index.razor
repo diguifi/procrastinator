@@ -9,24 +9,10 @@
 <p>You are making @speed procrastinations per second!</p>
 <button class="btn btn-primary" @onclick="ManualIncrement">Manual rusty machine (+1)</button>
 
-<h2 class="mt-4 mb-4">Store:</h2>
-@foreach (var item in items)
-{
-    <div>
-        <h3>@item.Name</h3>+@item.Power procrastination per second
-        <br/><b>Price:</b> @item.Price
-        <br/><b>Owns:</b> @item.Total
-        <br/>
-        @if(CanBuyItem(item.Price))
-        {
-            <button class="btn btn-success" @onclick="(() => BuyItem(item.Id))">Buy!</button>
-        }
-        else
-        {
-            <button disabled class="btn btn-secondary">Buy!</button>
-        }
-    </div><br/>
-}
+<ItemsStore OnTotalProcrastinationChanged="TotalProcrastinationChanged"
+            OnItemsChanged="ItemsChanged"
+            totalProcrastination="totalProcrastination">
+</ItemsStore>
 
 @code {
     private decimal totalProcrastination = 0;
@@ -37,11 +23,6 @@
 
     protected override void OnInitialized()
     {
-        items.Add(new Item(1, "Rusty Machine", 50, 1));
-        items.Add(new Item(2, "Nice Machine", 500, 5));
-        items.Add(new Item(3, "Propane Machine", 2000, 15));
-        items.Add(new Item(4, "Nuclear Machine", 10000, 50));
-
         _timer = new Timer(Callback, null, 0, timerInterval);
     }
  
@@ -72,13 +53,12 @@
         LocalStorage.SetItemAsync("quantity", totalProcrastination);
     }
 
-    private bool CanBuyItem(int price)
+    public void TotalProcrastinationChanged(decimal totalProc)
     {
-        return price <= totalProcrastination;
+        totalProcrastination = totalProc;
     }
-
-    private void BuyItem(int id)
+    public void ItemsChanged(ICollection<Item> newItems)
     {
-        totalProcrastination = items.Where(i => i.Id == id).FirstOrDefault().Buy(totalProcrastination);
+        items = newItems;
     }
 }
