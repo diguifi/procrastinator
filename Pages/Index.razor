@@ -6,7 +6,7 @@
 <h1>The Procrastinator</h1>
 
 <h2>Procrastinations: @totalProcrastination</h2>
-
+<p>You are making @speed procrastinations per second!</p>
 <button class="btn btn-primary" @onclick="ManualIncrement">Manual rusty machine (+1)</button>
 
 <h2 class="mt-4 mb-4">Store:</h2>
@@ -30,6 +30,7 @@
 
 @code {
     private decimal totalProcrastination = 0;
+    private int speed = 0;
     private ICollection<Item> items { get; set; } = new List<Item>();
     private static Timer _timer;
     private const long timerInterval = 200;
@@ -56,6 +57,7 @@
         {
             totalProcToAdd += item.Power * item.Total;
         }
+        speed = totalProcToAdd;
 
         float totalProcToAddOnStep = (totalProcToAdd/(1000.0f/timerInterval));
 
