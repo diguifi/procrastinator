@@ -23,7 +23,8 @@
     [Parameter]
     public decimal totalProcrastination { get; set; }
 
-    private ICollection<Item> items { get; set; } = new List<Item>();
+    [Parameter]
+    public ICollection<Item> items { get; set; } = new List<Item>();
     
     [Parameter]
     public  EventCallback<decimal>  OnTotalProcrastinationChanged { get; set; }

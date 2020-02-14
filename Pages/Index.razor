@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using System.Threading
 @using procrastinator.Models
+@using System.Text.Json;
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
 <h1>The Procrastinator</h1>
@@ -11,24 +12,37 @@
 
 <ItemsStore OnTotalProcrastinationChanged="TotalProcrastinationChanged"
             OnItemsChanged="ItemsChanged"
-            totalProcrastination="totalProcrastination">
+            totalProcrastination="totalProcrastination"
+            items="items">
 </ItemsStore>
 
 @code {
+    private string saveKey = "procrastination";
     private decimal totalProcrastination = 0;
     private int speed = 0;
     private ICollection<Item> items { get; set; } = new List<Item>();
     private static Timer _timer;
-    private const long timerInterval = 200;
+    private const int timerInterval = 200;
+    private const int saveInterval = 10000;
+    private int timerIntervalAccumulated = 0;
 
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
         _timer = new Timer(Callback, null, 0, timerInterval);
+
+        await Load();
     }
  
     private void Callback(object state)
     {
         CalculateAndApplyProcrastinations();
+
+        timerIntervalAccumulated += timerInterval;
+        if (timerIntervalAccumulated >= saveInterval)
+        {
+            timerIntervalAccumulated = 0;
+            Save();
+        }
     }
 
     private void CalculateAndApplyProcrastinations()
@@ -50,7 +64,36 @@
     private void ManualIncrement()
     {
         totalProcrastination++;
-        LocalStorage.SetItemAsync("quantity", totalProcrastination);
+    }
+
+    private void Save()
+    {
+        var saveData = new SaveData(totalProcrastination, items);
+        var jsonData = JsonSerializer.Serialize<SaveData>(saveData);
+
+        LocalStorage.SetItemAsync(saveKey, jsonData);
+    }
+
+    private async Task Load()
+    {
+        try
+        {
+            var loadedString = await LocalStorage.GetItemAsync<string>(saveKey);
+            if (loadedString == null)
+            {
+                Save();
+            }
+            else
+            {
+                var saveData = JsonSerializer.Deserialize<SaveData>(loadedString);
+                totalProcrastination = saveData.Quantity;
+                items = saveData.Items;
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 
     public void TotalProcrastinationChanged(decimal totalProc)
