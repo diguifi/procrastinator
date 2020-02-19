@@ -9,6 +9,7 @@ namespace procrastinator.Models
         public int Price { get; set; }
         public int Power { get; set; }
         public int Total { get; set; }
+        private int BaseCost { get; set; }
 
         public Item() { }
 
@@ -17,6 +18,7 @@ namespace procrastinator.Models
             Id = id;
             Name = name;
             Price = price;
+            BaseCost = price;
             Power = power;
             Total = 0;
         }
@@ -26,11 +28,16 @@ namespace procrastinator.Models
             if (totalProcrastination >= Price) 
             {
                 totalProcrastination -= Price;
-                Price += Price/2;
+                UpdatePrice();
                 Total++;
             }
             
             return totalProcrastination;
+        }
+
+        public void UpdatePrice()
+        {
+            Price = (int)Math.Round((BaseCost * Math.Pow(1.15f, (Total + 1))));
         }
     }
 }
