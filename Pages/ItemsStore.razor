@@ -39,9 +39,9 @@
     private async Task InitItems()
     {
         items.Add(new Item(1, "Rusty Machine", 50, 1));
-        items.Add(new Item(2, "Nice Machine", 500, 5));
-        items.Add(new Item(3, "Propane Machine", 2000, 15));
-        items.Add(new Item(4, "Nuclear Machine", 10000, 50));
+        items.Add(new Item(2, "Nice Machine", 750, 5));
+        items.Add(new Item(3, "Propane Machine", 4500, 15));
+        items.Add(new Item(4, "Nuclear Machine", 20000, 50));
 
         await OnItemsChanged.InvokeAsync(items);
     }

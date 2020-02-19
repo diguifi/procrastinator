@@ -9,7 +9,7 @@ namespace procrastinator.Models
         public int Price { get; set; }
         public int Power { get; set; }
         public int Total { get; set; }
-        private int BaseCost { get; set; }
+        public int BaseCost { get; set; }
 
         public Item() { }
 
